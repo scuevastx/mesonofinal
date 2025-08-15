@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MESONO Sound Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #2a2a2a url('https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-background.png') center center;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background: url('https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-background.png') center center;
+            background-size: cover;
+            border-radius: 50%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .ring {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            transition: all 150ms ease-out;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 180px;
+            max-height: 60px;
+            transition: all 150ms ease-out;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)) brightness(1.1);
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .orb {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            cursor: grab;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: box-shadow 150ms ease-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.3);
+            user-select: none;
+        }
+        
+        .orb:active, .orb.dragging {
+            cursor: grabbing;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
+        }
+        
+        .stem {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            transition: all 150ms ease-out;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        .stem.north { top: 40px; left: 50%; }
+        .stem.south { bottom: 40px; left: 50%; }
+        .stem.east { right: 40px; top: 50%; }
+        .stem.west { left: 40px; top: 50%; }
+        
+        .controls {
+            position: absolute;
+            bottom: -8rem;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+        
+        .btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: opacity 200ms ease;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+        }
+        
+        .btn img {
+            width: 96px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .pulsing {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <!-- Concentric rings -->
+        <div id="rings"></div>
+        
+        <!-- Logo -->
+        <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-logo.png" 
+             alt="MESONO" 
+             class="logo" 
+             id="logo"
+             onerror="this.style.display='none'; document.getElementById('logoText').style.display='block';">
+        
+        <!-- Fallback text logo -->
+        <div id="logoText" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 3rem; font-weight: 900; letter-spacing: 0.4em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.4); pointer-events: none; user-select: none;">MESONO</div>
+        
+        <!-- Music stems -->
+        <div class="stem north" id="stem-north"></div>
+        <div class="stem south" id="stem-south"></div>
+        <div class="stem east" id="stem-east"></div>
+        <div class="stem west" id="stem-west"></div>
+        
+        <!-- Draggable orb -->
+        <div class="orb" id="orb"></div>
+        
+        <!-- Control buttons -->
+        <div class="controls">
+            <button class="btn" id="startBtn" onclick="togglePlayback()">
+                <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
+                     alt="START" 
+                     id="startImg"
+                     onerror="this.innerHTML='START'; this.style.background='#6e726e'; this.style.color='#d4c5b6'; this.style.padding='10px 20px'; this.style.borderRadius='5px';">
+            </button>
+            
+            <button class="btn" onclick="resetAll()">
+                <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
+                     alt="STOP"
+                     onerror="this.innerHTML='STOP'; this.style.background='#6e726e'; this.style.color='#d4c5b6'; this.style.padding='10px 20px'; this.style.borderRadius='5px';">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let isPlaying = false;
+        let isDragging = false;
+        let orbPosition = { x: 0, y: 0 };
+        let stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
+        let audioFiles = {};
+        
+        // Audio file mapping
+        const audioSources = {
+            north: 'mesono-one.mp3',
+            east: 'mesono-two.mp3',
+            south: 'mesono-three.mp3',
+            west: 'mesono-four.mp3'
+        };
+        
+        // Elements
+        const container = document.getElementById('container');
+        const orb = document.getElementById('orb');
+        const logo = document.getElementById('logo');
+        const startBtn = document.getElementById('startBtn');
+        const startImg = document.getElementById('startImg');
+        
+        // Create concentric rings
+        function createRings() {
+            const ringsContainer = document.getElementById('rings');
+            for (let i = 0; i < 10; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'ring';
+                ring.style.width = `${60 + i * 30}px`;
+                ring.style.height = `${60 + i * 30}px`;
+                ring.style.top = '50%';
+                ring.style.left = '50%';
+                ring.style.transform = 'translate(-50%, -50%)';
+                ring.style.borderColor = `rgba(255, 255, 255, ${0.15 + i * 0.05})`;
+                ringsContainer.appendChild(ring);
+            }
+        }
+        
+        // Calculate volumes based on orb position
+        function calculateVolumes(x, y) {
+            const radius = 140;
+            const maxDistance = radius * Math.sqrt(2);
+            
+            const distances = {
+                north: Math.sqrt(x * x + (y + radius) * (y + radius)),
+                south: Math.sqrt(x * x + (y - radius) * (y - radius)),
+                east: Math.sqrt((x - radius) * (x - radius) + y * y),
+                west: Math.sqrt((x + radius) * (x + radius) + y * y)
+            };
+            
+            const volumes = {};
+            Object.keys(distances).forEach(direction => {
+                const normalizedDistance = Math.min(distances[direction] / maxDistance, 1);
+                volumes[direction] = Math.max(0, 1 - normalizedDistance);
+            });
+            
+            const totalVolume = Object.values(volumes).reduce((sum, vol) => sum + vol, 0);
+            if (totalVolume > 0) {
+                Object.keys(volumes).forEach(direction => {
+                    volumes[direction] = (volumes[direction] / totalVolume) * 0.8;
+                });
+            }
+            
+            return volumes;
+        }
+        
+        // Update visual effects
+        function updateVisuals() {
+            const movement = Math.sqrt(orbPosition.x * orbPosition.x + orbPosition.y * orbPosition.y);
+            
+            // Update rings
+            const rings = document.querySelectorAll('.ring');
+            rings.forEach((ring, i) => {
+                const offsetMultiplier = (i + 1) * 0.08;
+                const offsetX = orbPosition.x * offsetMultiplier;
+                const offsetY = orbPosition.y * offsetMultiplier;
+                const baseOpacity = 0.15 + i * 0.05;
+                const movementOpacity = Math.min(movement / 140 * 0.3, 0.3);
+                
+                ring.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+                ring.style.borderColor = `rgba(255, 255, 255, ${baseOpacity + movementOpacity})`;
+                if (movement > 50) {
+                    ring.style.boxShadow = `0 0 ${10 + movement * 0.1}px rgba(255, 255, 255, ${movementOpacity})`;
+                } else {
+                    ring.style.boxShadow = 'none';
+                }
+            });
+            
+            // Update logo
+            const logoGlow = 10 + movement * 0.2;
+            logo.style.filter = `drop-shadow(0 0 ${logoGlow}px rgba(255, 255, 255, 0.4)) brightness(1.1)`;
+            logo.style.transform = `translate(calc(-50% + ${orbPosition.x * 0.02}px), calc(-50% + ${orbPosition.y * 0.02}px))`;
+            
+            // Update stems
+            Object.keys(stemVolumes).forEach(direction => {
+                const stem = document.getElementById(`stem-${direction}`);
+                const volume = stemVolumes[direction];
+                const pulseIntensity = volume * (1 + movement / 140);
+                const size = 12 + pulseIntensity * 8;
+                
+                stem.style.width = `${size}px`;
+                stem.style.height = `${size}px`;
+                stem.style.backgroundColor = `rgba(255, 255, 255, ${0.4 + volume * 0.6})`;
+                stem.style.boxShadow = `0 0 ${10 + volume * 30}px rgba(255, 255, 255, ${volume * 0.8}), 0 0 ${5 + pulseIntensity * 15}px rgba(255, 255, 255, ${pulseIntensity * 0.5})`;
+                stem.style.transform = `translate(-50%, -50%) scale(${1 + volume * 0.5})`;
+            });
+        }
+        
+        // Drag functionality
+        let startX, startY;
+        
+        orb.addEventListener('mousedown', startDrag);
+        orb.addEventListener('touchstart', startDrag);
+        
+        function startDrag(e) {
+            isDragging = true;
+            orb.classList.add('dragging');
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            startX = clientX - centerX - orbPosition.x;
+            startY = clientY - centerY - orbPosition.y;
+            
+            e.preventDefault();
+        }
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag);
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            let x = clientX - centerX - startX;
+            let y = clientY - centerY - startY;
+            
+            // Constrain to circle
+            const distance = Math.sqrt(x * x + y * y);
+            const maxRadius = 140;
+            if (distance > maxRadius) {
+                x = (x / distance) * maxRadius;
+                y = (y / distance) * maxRadius;
+            }
+            
+            orbPosition.x = x;
+            orbPosition.y = y;
+            
+            orb.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            
+            // Update volumes and visuals
+            stemVolumes = calculateVolumes(x, y);
+            updateVisuals();
+            
+            // Update audio volumes if playing
+            if (isPlaying) {
+                Object.keys(audioFiles).forEach(direction => {
+                    if (audioFiles[direction]) {
+                        audioFiles[direction].volume = stemVolumes[direction];
+                    }
+                });
+            }
+            
+            e.preventDefault();
+        }
+        
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        
+        function endDrag() {
+            if (isDragging) {
+                isDragging = false;
+                orb.classList.remove('dragging');
+            }
+        }
+        
+        // Audio functionality
+        function togglePlayback() {
+            if (!isPlaying) {
+                startPlayback();
+            } else {
+                stopPlayback();
+            }
+        }
+        
+        function startPlayback() {
+            isPlaying = true;
+            startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
+            startImg.alt = 'STOP';
+            
+            console.log('Starting playback with volumes:', stemVolumes);
+            
+            Object.keys(audioSources).forEach(direction => {
+                try {
+                    const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
+                    audio.volume = stemVolumes[direction];
+                    audio.loop = true;
+                    audio.crossOrigin = 'anonymous';
+                    
+                    audio.play().catch(error => {
+                        console.warn(`Failed to play ${direction} stem:`, error);
+                    });
+                    
+                    audioFiles[direction] = audio;
+                } catch (error) {
+                    console.error(`Error loading ${direction} stem:`, error);
+                }
+            });
+        }
+        
+        function stopPlayback() {
+            isPlaying = false;
+            startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
+            startImg.alt = 'START';
+            
+            Object.keys(audioFiles).forEach(direction => {
+                if (audioFiles[direction]) {
+                    audioFiles[direction].pause();
+                    audioFiles[direction].currentTime = 0;
+                    delete audioFiles[direction];
+                }
+            });
+            
+            console.log('Playback stopped');
+        }
+        
+        function resetAll() {
+            stopPlayback();
+            orbPosition = { x: 0, y: 0 };
+            stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
+            orb.style.transform = 'translate(-50%, -50%)';
+            updateVisuals();
+        }
+        
+        // Initialize
+        createRings();
+        updateVisuals();
+        
+        console.log('MESONO Sound Creator initialized');
+    </script>
+</body>
+</html>
