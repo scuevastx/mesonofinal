@@ -188,23 +188,6 @@
                  class="btn-img">
         </button>
     </div>
-        <button class="control-btn" id="startBtn" onclick="togglePlay()">
-            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
-                 alt="START" 
-                 class="btn-img"
-                 id="startImg"
-                 onload="console.log('Start button image loaded')"
-                 onerror="console.log('Start button image failed'); this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'togglePlay()\' id=\'startFallback\'>START</div>';">
-        </button>
-        
-        <button class="control-btn" onclick="resetAll()">
-            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
-                 alt="STOP" 
-                 class="btn-img"
-                 onload="console.log('Stop button image loaded')"
-                 onerror="console.log('Stop button image failed'); this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'resetAll()\'>STOP</div>';">
-        </button>
-    </div>
 
     <script>
         // State management
@@ -395,16 +378,9 @@
         function startPlayback() {
             isPlaying = true;
             
-            // Update button to STOP
-            const startImg = document.getElementById('startImg');
-            const startFallback = document.getElementById('startFallback');
-            
             if (startImg) {
                 startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
                 startImg.alt = 'STOP';
-            }
-            if (startFallback) {
-                startFallback.textContent = 'STOP';
             }
             
             status.textContent = 'Loading audio...';
@@ -444,16 +420,9 @@
         function stopPlayback() {
             isPlaying = false;
             
-            // Update button back to START
-            const startImg = document.getElementById('startImg');
-            const startFallback = document.getElementById('startFallback');
-            
             if (startImg) {
                 startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
                 startImg.alt = 'START';
-            }
-            if (startFallback) {
-                startFallback.textContent = 'START';
             }
             
             status.textContent = 'Stopped';
