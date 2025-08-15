@@ -107,7 +107,7 @@
         .controls {
             display: flex;
             justify-content: space-between;
-            width: 500px;
+            width: 300px;
             z-index: 200;
             margin-top: 2rem;
         }
@@ -149,7 +149,7 @@
         }
         
         .btn img {
-            display: none;
+            display: block;
         }
         
         @keyframes pulse {
@@ -190,12 +190,25 @@
     <!-- Control buttons -->
     <div class="controls">
         <button class="btn" id="startBtn" onclick="togglePlayback()">
-            <span id="startText">START</span>
+            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
+                 alt="START" 
+                 id="startImg"
+                 style="width: 120px; height: auto; display: block;"
+                 onerror="console.log('Image failed, showing fallback'); this.style.display='none'; this.parentElement.innerHTML='<div class=\'btn-fallback\' onclick=\'togglePlayback()\'>START</div>';">
         </button>
         
         <button class="btn" onclick="resetAll()">
-            STOP
+            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
+                 alt="STOP"
+                 style="width: 120px; height: auto; display: block;"
+                 onerror="console.log('Image failed, showing fallback'); this.style.display='none'; this.parentElement.innerHTML='<div class=\'btn-fallback\' onclick=\'resetAll()\'>STOP</div>';">
         </button>
+    </div>
+    
+    <!-- Fallback buttons if images fail -->
+    <div class="controls" id="fallback-controls" style="display: none;">
+        <button class="btn-fallback" onclick="togglePlayback()" id="fallback-start">START</button>
+        <button class="btn-fallback" onclick="resetAll()">STOP</button>
     </div>
 
     <script>
@@ -386,6 +399,7 @@
         
         // Audio functionality
         function togglePlayback() {
+            console.log('Toggle playback clicked, isPlaying:', isPlaying);
             if (!isPlaying) {
                 startPlayback();
             } else {
@@ -394,30 +408,40 @@
         }
         
         function startPlayback() {
+            console.log('Starting playback...');
             isPlaying = true;
-            document.getElementById('startText').textContent = 'STOP';
+            
+            // Update button images
+            const startImg = document.getElementById('startImg');
+            const fallbackStart = document.getElementById('fallback-start');
+            
+            if (startImg) {
+                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
+                startImg.alt = 'STOP';
+            }
+            if (fallbackStart) {
+                fallbackStart.textContent = 'STOP';
+            }
             
             console.log('Starting playback with volumes:', stemVolumes);
             
             Object.keys(audioSources).forEach(direction => {
                 try {
+                    console.log(`Loading ${direction} stem: ${audioSources[direction]}`);
                     const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
                     audio.volume = stemVolumes[direction];
                     audio.loop = true;
                     audio.crossOrigin = 'anonymous';
                     
-                    // Add user interaction requirement
+                    // Enhanced play promise handling
                     const playPromise = audio.play();
                     if (playPromise !== undefined) {
                         playPromise.then(() => {
                             console.log(`${direction} stem playing successfully`);
                         }).catch(error => {
                             console.warn(`Failed to play ${direction} stem:`, error);
-                            // Try again with user gesture
-                            document.addEventListener('click', function playOnClick() {
-                                audio.play().catch(e => console.error('Still failed:', e));
-                                document.removeEventListener('click', playOnClick);
-                            }, { once: true });
+                            // Show user interaction is needed
+                            console.log('User interaction may be required for audio playback');
                         });
                     }
                     
@@ -430,7 +454,11 @@
         
         function stopPlayback() {
             isPlaying = false;
-            document.getElementById('startText').textContent = 'START';
+            const startImg = document.getElementById('startImg');
+            if (startImg) {
+                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
+                startImg.alt = 'START';
+            }
             
             Object.keys(audioFiles).forEach(direction => {
                 if (audioFiles[direction]) {
