@@ -26,14 +26,14 @@
         
         .main-container {
             position: relative;
-            width: 600px;
-            height: 600px;
+            width: 500px;
+            height: 500px;
             background: url('https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-background.png') center center;
             background-size: cover;
             border-radius: 50%;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            margin-bottom: 40px;
+            margin-bottom: 60px;
         }
         
         .ring {
@@ -51,8 +51,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            max-width: 400px;
-            max-height: 180px;
+            max-width: 320px;
+            max-height: 140px;
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) brightness(1.2);
             pointer-events: none;
             user-select: none;
@@ -65,7 +65,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 900;
             letter-spacing: 0.4em;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.6);
@@ -111,7 +111,7 @@
         
         .controls {
             display: flex;
-            gap: 60px;
+            gap: 120px;
             align-items: center;
         }
         
@@ -124,7 +124,7 @@
         }
         
         .btn-img {
-            width: 120px;
+            width: 140px;
             height: auto;
             filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.4));
             transition: all 200ms ease;
@@ -179,15 +179,30 @@
             <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
                  alt="START" 
                  class="btn-img"
+                 id="startImg">
+        </button>
+        
+        <button class="control-btn" onclick="resetAll()">
+            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
+                 alt="STOP" 
+                 class="btn-img">
+        </button>
+    </div>
+        <button class="control-btn" id="startBtn" onclick="togglePlay()">
+            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
+                 alt="START" 
+                 class="btn-img"
                  id="startImg"
-                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'togglePlay()\'>START</div>';">
+                 onload="console.log('Start button image loaded')"
+                 onerror="console.log('Start button image failed'); this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'togglePlay()\' id=\'startFallback\'>START</div>';">
         </button>
         
         <button class="control-btn" onclick="resetAll()">
             <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
                  alt="STOP" 
                  class="btn-img"
-                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'resetAll()\'>STOP</div>';">
+                 onload="console.log('Stop button image loaded')"
+                 onerror="console.log('Stop button image failed'); this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'resetAll()\'>STOP</div>';">
         </button>
     </div>
 
@@ -230,7 +245,7 @@
         
         // Calculate volumes based on orb position
         function calculateVolumes(x, y) {
-            const radius = 200;
+            const radius = 180;
             const maxDistance = radius * Math.sqrt(2);
             
             const distances = {
@@ -331,7 +346,7 @@
             
             // Constrain to circle
             const distance = Math.sqrt(x * x + y * y);
-            const maxRadius = 250;
+            const maxRadius = 210;
             if (distance > maxRadius) {
                 x = (x / distance) * maxRadius;
                 y = (y / distance) * maxRadius;
@@ -379,10 +394,19 @@
         
         function startPlayback() {
             isPlaying = true;
+            
+            // Update button to STOP
+            const startImg = document.getElementById('startImg');
+            const startFallback = document.getElementById('startFallback');
+            
             if (startImg) {
                 startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
                 startImg.alt = 'STOP';
             }
+            if (startFallback) {
+                startFallback.textContent = 'STOP';
+            }
+            
             status.textContent = 'Loading audio...';
             
             let loadedCount = 0;
@@ -419,10 +443,19 @@
         
         function stopPlayback() {
             isPlaying = false;
+            
+            // Update button back to START
+            const startImg = document.getElementById('startImg');
+            const startFallback = document.getElementById('startFallback');
+            
             if (startImg) {
                 startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
                 startImg.alt = 'START';
             }
+            if (startFallback) {
+                startFallback.textContent = 'START';
+            }
+            
             status.textContent = 'Stopped';
             
             Object.values(audioTracks).forEach(audio => {
