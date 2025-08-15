@@ -46,7 +46,20 @@
             transition: all 150ms ease-out;
         }
         
-        .logo {
+        .logo-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 400px;
+            max-height: 180px;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) brightness(1.2);
+            pointer-events: none;
+            user-select: none;
+            z-index: 50;
+        }
+        
+        .logo-text {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -59,6 +72,7 @@
             pointer-events: none;
             user-select: none;
             z-index: 50;
+            display: none;
         }
         
         .orb {
@@ -83,8 +97,6 @@
         
         .stem {
             position: absolute;
-            width: 16px;
-            height: 16px;
             background: rgba(255, 255, 255, 0.6);
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -104,25 +116,23 @@
         }
         
         .control-btn {
-            background: rgba(51, 51, 51, 0.9);
-            border: 3px solid #fff;
-            color: #fff;
+            background: none;
+            border: none;
             cursor: pointer;
-            padding: 20px 40px;
-            border-radius: 15px;
-            font-family: Arial Black, Arial, sans-serif;
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
+            padding: 0;
             transition: all 200ms ease;
         }
         
-        .control-btn:hover {
+        .btn-img {
+            width: 120px;
+            height: auto;
+            filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.4));
+            transition: all 200ms ease;
+        }
+        
+        .control-btn:hover .btn-img {
             transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.5));
         }
         
         .status {
@@ -142,11 +152,17 @@
     <div class="status" id="status">Ready</div>
     
     <div class="main-container" id="container">
-        <!-- Rings will be added by JavaScript -->
+        <!-- Rings -->
         <div id="rings"></div>
         
         <!-- Logo -->
-        <div class="logo">MESONO</div>
+        <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-logo.png" 
+             alt="MESONO" 
+             class="logo-img" 
+             id="logoImg"
+             onerror="this.style.display='none'; document.getElementById('logoText').style.display='block';">
+        
+        <div class="logo-text" id="logoText">MESONO</div>
         
         <!-- Music stems -->
         <div class="stem north" id="stem-north"></div>
@@ -159,21 +175,36 @@
     </div>
 
     <div class="controls">
-        <button class="control-btn" id="startBtn" onclick="togglePlay()">START</button>
-        <button class="control-btn" onclick="resetAll()">STOP</button>
+        <button class="control-btn" id="startBtn" onclick="togglePlay()">
+            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
+                 alt="START" 
+                 class="btn-img"
+                 id="startImg"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'togglePlay()\'>START</div>';">
+        </button>
+        
+        <button class="control-btn" onclick="resetAll()">
+            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
+                 alt="STOP" 
+                 class="btn-img"
+                 onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'background: rgba(51,51,51,0.9); border: 3px solid white; color: white; padding: 20px 40px; border-radius: 15px; font-family: Arial Black; font-size: 24px; font-weight: 900; letter-spacing: 0.3em;\' onclick=\'resetAll()\'>STOP</div>';">
+        </button>
     </div>
 
     <script>
-        // Simple state management
+        // State management
         let isPlaying = false;
         let orbPos = { x: 0, y: 0 };
         let isDragging = false;
         let audioTracks = {};
+        let stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
         
         const status = document.getElementById('status');
         const orb = document.getElementById('orb');
         const container = document.getElementById('container');
         const startBtn = document.getElementById('startBtn');
+        const startImg = document.getElementById('startImg');
+        const logoImg = document.getElementById('logoImg');
         
         // Audio sources
         const audioSources = {
@@ -192,8 +223,84 @@
                 ring.style.width = `${60 + i * 50}px`;
                 ring.style.height = `${60 + i * 50}px`;
                 ring.style.borderColor = `rgba(255, 255, 255, ${0.1 + i * 0.03})`;
+                ring.id = `ring-${i}`;
                 ringsContainer.appendChild(ring);
             }
+        }
+        
+        // Calculate volumes based on orb position
+        function calculateVolumes(x, y) {
+            const radius = 200;
+            const maxDistance = radius * Math.sqrt(2);
+            
+            const distances = {
+                north: Math.sqrt(x * x + (y + radius) * (y + radius)),
+                south: Math.sqrt(x * x + (y - radius) * (y - radius)),
+                east: Math.sqrt((x - radius) * (x - radius) + y * y),
+                west: Math.sqrt((x + radius) * (x + radius) + y * y)
+            };
+            
+            const volumes = {};
+            Object.keys(distances).forEach(direction => {
+                const normalizedDistance = Math.min(distances[direction] / maxDistance, 1);
+                volumes[direction] = Math.max(0, 1 - normalizedDistance);
+            });
+            
+            const totalVolume = Object.values(volumes).reduce((sum, vol) => sum + vol, 0);
+            if (totalVolume > 0) {
+                Object.keys(volumes).forEach(direction => {
+                    volumes[direction] = (volumes[direction] / totalVolume) * 0.8;
+                });
+            }
+            
+            return volumes;
+        }
+        
+        // Update visual effects
+        function updateVisuals() {
+            const movement = Math.sqrt(orbPos.x * orbPos.x + orbPos.y * orbPos.y);
+            
+            // Update rings with flowing effect
+            for (let i = 0; i < 10; i++) {
+                const ring = document.getElementById(`ring-${i}`);
+                if (ring) {
+                    const offsetMultiplier = (i + 1) * 0.08;
+                    const offsetX = orbPos.x * offsetMultiplier;
+                    const offsetY = orbPos.y * offsetMultiplier;
+                    const baseOpacity = 0.1 + i * 0.03;
+                    const movementOpacity = Math.min(movement / 250 * 0.3, 0.3);
+                    
+                    ring.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+                    ring.style.borderColor = `rgba(255, 255, 255, ${baseOpacity + movementOpacity})`;
+                    
+                    if (movement > 50) {
+                        ring.style.boxShadow = `0 0 ${10 + movement * 0.1}px rgba(255, 255, 255, ${movementOpacity})`;
+                    } else {
+                        ring.style.boxShadow = 'none';
+                    }
+                }
+            }
+            
+            // Update logo with movement
+            const logoGlow = 15 + movement * 0.2;
+            logoImg.style.filter = `drop-shadow(0 0 ${logoGlow}px rgba(255, 255, 255, 0.6)) brightness(1.2)`;
+            logoImg.style.transform = `translate(calc(-50% + ${orbPos.x * 0.02}px), calc(-50% + ${orbPos.y * 0.02}px))`;
+            
+            // Update stems
+            Object.keys(stemVolumes).forEach(direction => {
+                const stem = document.getElementById(`stem-${direction}`);
+                if (stem) {
+                    const volume = stemVolumes[direction];
+                    const pulseIntensity = volume * (1 + movement / 250);
+                    const size = 16 + pulseIntensity * 12;
+                    
+                    stem.style.width = `${size}px`;
+                    stem.style.height = `${size}px`;
+                    stem.style.backgroundColor = `rgba(255, 255, 255, ${0.4 + volume * 0.6})`;
+                    stem.style.boxShadow = `0 0 ${10 + volume * 30}px rgba(255, 255, 255, ${volume * 0.8})`;
+                    stem.style.transform = `translate(-50%, -50%) scale(${1 + volume * 0.5})`;
+                }
+            });
         }
         
         // Drag functionality
@@ -235,11 +342,19 @@
             
             orb.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
             
-            status.textContent = `Position: ${Math.round(x)}, ${Math.round(y)}`;
+            // Update volumes and visuals
+            stemVolumes = calculateVolumes(x, y);
+            updateVisuals();
+            
+            status.textContent = `N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}%`;
             
             // Update audio volumes if playing
             if (isPlaying) {
-                updateAudioVolumes();
+                Object.keys(audioTracks).forEach(direction => {
+                    if (audioTracks[direction]) {
+                        audioTracks[direction].volume = stemVolumes[direction];
+                    }
+                });
             }
         }
         
@@ -264,7 +379,10 @@
         
         function startPlayback() {
             isPlaying = true;
-            startBtn.textContent = 'STOP';
+            if (startImg) {
+                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
+                startImg.alt = 'STOP';
+            }
             status.textContent = 'Loading audio...';
             
             let loadedCount = 0;
@@ -272,7 +390,7 @@
             
             Object.keys(audioSources).forEach(direction => {
                 const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
-                audio.volume = 0.25;
+                audio.volume = stemVolumes[direction];
                 audio.loop = true;
                 audio.crossOrigin = 'anonymous';
                 
@@ -282,7 +400,6 @@
                     
                     if (loadedCount === totalTracks) {
                         status.textContent = 'Playing...';
-                        // Start all audio tracks
                         Object.values(audioTracks).forEach(track => {
                             track.play().catch(e => {
                                 status.textContent = 'Click to start audio';
@@ -302,7 +419,10 @@
         
         function stopPlayback() {
             isPlaying = false;
-            startBtn.textContent = 'START';
+            if (startImg) {
+                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
+                startImg.alt = 'START';
+            }
             status.textContent = 'Stopped';
             
             Object.values(audioTracks).forEach(audio => {
@@ -312,28 +432,21 @@
             audioTracks = {};
         }
         
-        function updateAudioVolumes() {
-            // Simple volume calculation based on distance
-            Object.keys(audioTracks).forEach(direction => {
-                if (audioTracks[direction]) {
-                    // This is a simplified version - you can enhance this
-                    audioTracks[direction].volume = 0.5;
-                }
-            });
-        }
-        
         function resetAll() {
             stopPlayback();
             orbPos = { x: 0, y: 0 };
+            stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
             orb.style.transform = 'translate(-50%, -50%)';
+            updateVisuals();
             status.textContent = 'Reset';
         }
         
         // Initialize
         createRings();
+        updateVisuals();
         status.textContent = 'Initialized';
         
-        console.log('MESONO Sound Creator - Simple Version Loaded');
+        console.log('MESONO Sound Creator - Full Version Loaded');
     </script>
 </body>
 </html>
