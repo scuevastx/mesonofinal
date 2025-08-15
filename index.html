@@ -26,14 +26,14 @@
         
         .main-container {
             position: relative;
-            width: 500px;
-            height: 500px;
+            width: 600px;
+            height: 600px;
             background: url('https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-background.png') center center;
             background-size: cover;
             border-radius: 50%;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            margin-bottom: 60px;
+            margin-bottom: 40px;
         }
         
         .ring {
@@ -51,8 +51,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            max-width: 320px;
-            max-height: 140px;
+            max-width: 400px;
+            max-height: 180px;
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) brightness(1.2);
             pointer-events: none;
             user-select: none;
@@ -65,7 +65,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 900;
             letter-spacing: 0.4em;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.6);
@@ -111,7 +111,7 @@
         
         .controls {
             display: flex;
-            gap: 120px;
+            gap: 60px;
             align-items: center;
         }
         
@@ -124,7 +124,7 @@
         }
         
         .btn-img {
-            width: 140px;
+            width: 120px;
             height: auto;
             filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.4));
             transition: all 200ms ease;
@@ -245,7 +245,7 @@
         
         // Calculate volumes based on orb position
         function calculateVolumes(x, y) {
-            const radius = 180;
+            const radius = 200;
             const maxDistance = radius * Math.sqrt(2);
             
             const distances = {
@@ -346,7 +346,7 @@
             
             // Constrain to circle
             const distance = Math.sqrt(x * x + y * y);
-            const maxRadius = 210;
+            const maxRadius = 250;
             if (distance > maxRadius) {
                 x = (x / distance) * maxRadius;
                 y = (y / distance) * maxRadius;
