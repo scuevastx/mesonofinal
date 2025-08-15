@@ -21,11 +21,10 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 4rem;
-            gap: 4rem;
+            padding: 20px;
         }
         
-        .container {
+        .main-container {
             position: relative;
             width: 600px;
             height: 600px;
@@ -34,24 +33,16 @@
             border-radius: 50%;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-        }
-        
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            pointer-events: none;
+            margin-bottom: 40px;
         }
         
         .ring {
             position: absolute;
             border: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             transition: all 150ms ease-out;
         }
         
@@ -60,10 +51,11 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            max-width: 400px;
-            max-height: 180px;
-            transition: all 150ms ease-out;
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) brightness(1.2);
+            color: white;
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 0.4em;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.6);
             pointer-events: none;
             user-select: none;
             z-index: 50;
@@ -79,103 +71,82 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: box-shadow 150ms ease-out;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.3);
             user-select: none;
             z-index: 100;
         }
         
-        .orb:active, .orb.dragging {
+        .orb:active {
             cursor: grabbing;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
         }
         
         .stem {
             position: absolute;
+            width: 16px;
+            height: 16px;
             background: rgba(255, 255, 255, 0.6);
             border-radius: 50%;
-            transition: all 150ms ease-out;
             transform: translate(-50%, -50%);
+            transition: all 150ms ease-out;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
         
-        .stem.north { top: 50px; left: 50%; }
-        .stem.south { bottom: 50px; left: 50%; }
-        .stem.east { right: 50px; top: 50%; }
-        .stem.west { left: 50px; top: 50%; }
+        .stem.north { top: 60px; left: 50%; }
+        .stem.south { bottom: 60px; left: 50%; }
+        .stem.east { right: 60px; top: 50%; }
+        .stem.west { left: 60px; top: 50%; }
         
         .controls {
             display: flex;
-            justify-content: space-between;
-            width: 300px;
-            z-index: 200;
-            margin-top: 2rem;
+            gap: 60px;
+            align-items: center;
         }
         
-        .btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            transition: all 200ms ease;
-        }
-        
-        .btn img {
-            width: 120px;
-            height: auto;
-            filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.4));
-            transition: all 200ms ease;
-        }
-        
-        .btn:hover img {
-            transform: translateY(-2px);
-            filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.5));
-        }
-        
-        .btn-fallback {
+        .control-btn {
             background: rgba(51, 51, 51, 0.9);
             border: 3px solid #fff;
             color: #fff;
             cursor: pointer;
-            padding: 15px 30px;
+            padding: 20px 40px;
             border-radius: 15px;
             font-family: Arial Black, Arial, sans-serif;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 900;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.3em;
             text-transform: uppercase;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
+            transition: all 200ms ease;
         }
         
-        .btn img {
-            display: block;
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        .pulsing {
-            animation: pulse 2s ease-in-out infinite;
+        .status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="container">
-        <!-- Concentric rings -->
+    <div class="status" id="status">Ready</div>
+    
+    <div class="main-container" id="container">
+        <!-- Rings will be added by JavaScript -->
         <div id="rings"></div>
         
         <!-- Logo -->
-        <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-logo.png" 
-             alt="MESONO" 
-             class="logo" 
-             id="logo"
-             onerror="this.style.display='none'; document.getElementById('logoText').style.display='block';">
-        
-        <!-- Fallback text logo -->
-        <div id="logoText" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 5rem; font-weight: 900; letter-spacing: 0.4em; text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.6); pointer-events: none; user-select: none; z-index: 50;">MESONO</div>
+        <div class="logo">MESONO</div>
         
         <!-- Music stems -->
         <div class="stem north" id="stem-north"></div>
@@ -187,39 +158,24 @@
         <div class="orb" id="orb"></div>
     </div>
 
-    <!-- Control buttons -->
     <div class="controls">
-        <button class="btn" id="startBtn" onclick="togglePlayback()">
-            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png" 
-                 alt="START" 
-                 id="startImg"
-                 style="width: 120px; height: auto; display: block;"
-                 onerror="console.log('Image failed, showing fallback'); this.style.display='none'; this.parentElement.innerHTML='<div class=\'btn-fallback\' onclick=\'togglePlayback()\'>START</div>';">
-        </button>
-        
-        <button class="btn" onclick="resetAll()">
-            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
-                 alt="STOP"
-                 style="width: 120px; height: auto; display: block;"
-                 onerror="console.log('Image failed, showing fallback'); this.style.display='none'; this.parentElement.innerHTML='<div class=\'btn-fallback\' onclick=\'resetAll()\'>STOP</div>';">
-        </button>
-    </div>
-    
-    <!-- Fallback buttons if images fail -->
-    <div class="controls" id="fallback-controls" style="display: none;">
-        <button class="btn-fallback" onclick="togglePlayback()" id="fallback-start">START</button>
-        <button class="btn-fallback" onclick="resetAll()">STOP</button>
+        <button class="control-btn" id="startBtn" onclick="togglePlay()">START</button>
+        <button class="control-btn" onclick="resetAll()">STOP</button>
     </div>
 
     <script>
-        // State
+        // Simple state management
         let isPlaying = false;
+        let orbPos = { x: 0, y: 0 };
         let isDragging = false;
-        let orbPosition = { x: 0, y: 0 };
-        let stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
-        let audioFiles = {};
+        let audioTracks = {};
         
-        // Audio file mapping
+        const status = document.getElementById('status');
+        const orb = document.getElementById('orb');
+        const container = document.getElementById('container');
+        const startBtn = document.getElementById('startBtn');
+        
+        // Audio sources
         const audioSources = {
             north: 'mesono-one.mp3',
             east: 'mesono-two.mp3',
@@ -227,118 +183,26 @@
             west: 'mesono-four.mp3'
         };
         
-        // Elements
-        const container = document.getElementById('container');
-        const orb = document.getElementById('orb');
-        const logo = document.getElementById('logo');
-        const startBtn = document.getElementById('startBtn');
-        
-        // Create concentric rings
+        // Create rings
         function createRings() {
             const ringsContainer = document.getElementById('rings');
             for (let i = 0; i < 10; i++) {
                 const ring = document.createElement('div');
                 ring.className = 'ring';
-                ring.style.width = `${60 + i * 30}px`;
-                ring.style.height = `${60 + i * 30}px`;
-                ring.style.top = '50%';
-                ring.style.left = '50%';
-                ring.style.transform = 'translate(-50%, -50%)';
-                ring.style.borderColor = `rgba(255, 255, 255, ${0.15 + i * 0.05})`;
+                ring.style.width = `${60 + i * 50}px`;
+                ring.style.height = `${60 + i * 50}px`;
+                ring.style.borderColor = `rgba(255, 255, 255, ${0.1 + i * 0.03})`;
                 ringsContainer.appendChild(ring);
             }
         }
         
-        // Calculate volumes based on orb position
-        function calculateVolumes(x, y) {
-            const radius = 140;
-            const maxDistance = radius * Math.sqrt(2);
-            
-            const distances = {
-                north: Math.sqrt(x * x + (y + radius) * (y + radius)),
-                south: Math.sqrt(x * x + (y - radius) * (y - radius)),
-                east: Math.sqrt((x - radius) * (x - radius) + y * y),
-                west: Math.sqrt((x + radius) * (x + radius) + y * y)
-            };
-            
-            const volumes = {};
-            Object.keys(distances).forEach(direction => {
-                const normalizedDistance = Math.min(distances[direction] / maxDistance, 1);
-                volumes[direction] = Math.max(0, 1 - normalizedDistance);
-            });
-            
-            const totalVolume = Object.values(volumes).reduce((sum, vol) => sum + vol, 0);
-            if (totalVolume > 0) {
-                Object.keys(volumes).forEach(direction => {
-                    volumes[direction] = (volumes[direction] / totalVolume) * 0.8;
-                });
-            }
-            
-            return volumes;
-        }
-        
-        // Update visual effects
-        function updateVisuals() {
-            const movement = Math.sqrt(orbPosition.x * orbPosition.x + orbPosition.y * orbPosition.y);
-            
-            // Update rings
-            const rings = document.querySelectorAll('.ring');
-            rings.forEach((ring, i) => {
-                const offsetMultiplier = (i + 1) * 0.08;
-                const offsetX = orbPosition.x * offsetMultiplier;
-                const offsetY = orbPosition.y * offsetMultiplier;
-                const baseOpacity = 0.15 + i * 0.05;
-                const movementOpacity = Math.min(movement / 140 * 0.3, 0.3);
-                
-                ring.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
-                ring.style.borderColor = `rgba(255, 255, 255, ${baseOpacity + movementOpacity})`;
-                if (movement > 50) {
-                    ring.style.boxShadow = `0 0 ${10 + movement * 0.1}px rgba(255, 255, 255, ${movementOpacity})`;
-                } else {
-                    ring.style.boxShadow = 'none';
-                }
-            });
-            
-            // Update logo
-            const logoGlow = 10 + movement * 0.2;
-            logo.style.filter = `drop-shadow(0 0 ${logoGlow}px rgba(255, 255, 255, 0.4)) brightness(1.1)`;
-            logo.style.transform = `translate(calc(-50% + ${orbPosition.x * 0.02}px), calc(-50% + ${orbPosition.y * 0.02}px))`;
-            
-            // Update stems
-            Object.keys(stemVolumes).forEach(direction => {
-                const stem = document.getElementById(`stem-${direction}`);
-                const volume = stemVolumes[direction];
-                const pulseIntensity = volume * (1 + movement / 140);
-                const size = 12 + pulseIntensity * 8;
-                
-                stem.style.width = `${size}px`;
-                stem.style.height = `${size}px`;
-                stem.style.backgroundColor = `rgba(255, 255, 255, ${0.4 + volume * 0.6})`;
-                stem.style.boxShadow = `0 0 ${10 + volume * 30}px rgba(255, 255, 255, ${volume * 0.8}), 0 0 ${5 + pulseIntensity * 15}px rgba(255, 255, 255, ${pulseIntensity * 0.5})`;
-                stem.style.transform = `translate(-50%, -50%) scale(${1 + volume * 0.5})`;
-            });
-        }
-        
         // Drag functionality
-        let startX, startY;
-        
         orb.addEventListener('mousedown', startDrag);
         orb.addEventListener('touchstart', startDrag);
         
         function startDrag(e) {
             isDragging = true;
-            orb.classList.add('dragging');
-            
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            const rect = container.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            startX = clientX - centerX - orbPosition.x;
-            startY = clientY - centerY - orbPosition.y;
-            
+            status.textContent = 'Dragging...';
             e.preventDefault();
         }
         
@@ -348,43 +212,35 @@
         function drag(e) {
             if (!isDragging) return;
             
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
             const rect = container.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             
-            let x = clientX - centerX - startX;
-            let y = clientY - centerY - startY;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            let x = clientX - centerX;
+            let y = clientY - centerY;
             
             // Constrain to circle
             const distance = Math.sqrt(x * x + y * y);
-            const maxRadius = 180;
+            const maxRadius = 250;
             if (distance > maxRadius) {
                 x = (x / distance) * maxRadius;
                 y = (y / distance) * maxRadius;
             }
             
-            orbPosition.x = x;
-            orbPosition.y = y;
+            orbPos.x = x;
+            orbPos.y = y;
             
             orb.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
             
-            // Update volumes and visuals
-            stemVolumes = calculateVolumes(x, y);
-            updateVisuals();
+            status.textContent = `Position: ${Math.round(x)}, ${Math.round(y)}`;
             
             // Update audio volumes if playing
             if (isPlaying) {
-                Object.keys(audioFiles).forEach(direction => {
-                    if (audioFiles[direction]) {
-                        audioFiles[direction].volume = stemVolumes[direction];
-                    }
-                });
+                updateAudioVolumes();
             }
-            
-            e.preventDefault();
         }
         
         document.addEventListener('mouseup', endDrag);
@@ -393,13 +249,12 @@
         function endDrag() {
             if (isDragging) {
                 isDragging = false;
-                orb.classList.remove('dragging');
+                status.textContent = isPlaying ? 'Playing...' : 'Ready';
             }
         }
         
-        // Audio functionality
-        function togglePlayback() {
-            console.log('Toggle playback clicked, isPlaying:', isPlaying);
+        // Audio control
+        function togglePlay() {
             if (!isPlaying) {
                 startPlayback();
             } else {
@@ -408,82 +263,77 @@
         }
         
         function startPlayback() {
-            console.log('Starting playback...');
             isPlaying = true;
+            startBtn.textContent = 'STOP';
+            status.textContent = 'Loading audio...';
             
-            // Update button images
-            const startImg = document.getElementById('startImg');
-            const fallbackStart = document.getElementById('fallback-start');
-            
-            if (startImg) {
-                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
-                startImg.alt = 'STOP';
-            }
-            if (fallbackStart) {
-                fallbackStart.textContent = 'STOP';
-            }
-            
-            console.log('Starting playback with volumes:', stemVolumes);
+            let loadedCount = 0;
+            const totalTracks = Object.keys(audioSources).length;
             
             Object.keys(audioSources).forEach(direction => {
-                try {
-                    console.log(`Loading ${direction} stem: ${audioSources[direction]}`);
-                    const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
-                    audio.volume = stemVolumes[direction];
-                    audio.loop = true;
-                    audio.crossOrigin = 'anonymous';
+                const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
+                audio.volume = 0.25;
+                audio.loop = true;
+                audio.crossOrigin = 'anonymous';
+                
+                audio.addEventListener('canplaythrough', () => {
+                    loadedCount++;
+                    status.textContent = `Loading... ${loadedCount}/${totalTracks}`;
                     
-                    // Enhanced play promise handling
-                    const playPromise = audio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => {
-                            console.log(`${direction} stem playing successfully`);
-                        }).catch(error => {
-                            console.warn(`Failed to play ${direction} stem:`, error);
-                            // Show user interaction is needed
-                            console.log('User interaction may be required for audio playback');
+                    if (loadedCount === totalTracks) {
+                        status.textContent = 'Playing...';
+                        // Start all audio tracks
+                        Object.values(audioTracks).forEach(track => {
+                            track.play().catch(e => {
+                                status.textContent = 'Click to start audio';
+                            });
                         });
                     }
-                    
-                    audioFiles[direction] = audio;
-                } catch (error) {
-                    console.error(`Error loading ${direction} stem:`, error);
-                }
+                });
+                
+                audio.addEventListener('error', (e) => {
+                    status.textContent = `Error loading ${direction}`;
+                    console.error(`Failed to load ${direction}:`, e);
+                });
+                
+                audioTracks[direction] = audio;
             });
         }
         
         function stopPlayback() {
             isPlaying = false;
-            const startImg = document.getElementById('startImg');
-            if (startImg) {
-                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
-                startImg.alt = 'START';
-            }
+            startBtn.textContent = 'START';
+            status.textContent = 'Stopped';
             
-            Object.keys(audioFiles).forEach(direction => {
-                if (audioFiles[direction]) {
-                    audioFiles[direction].pause();
-                    audioFiles[direction].currentTime = 0;
-                    delete audioFiles[direction];
+            Object.values(audioTracks).forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            audioTracks = {};
+        }
+        
+        function updateAudioVolumes() {
+            // Simple volume calculation based on distance
+            Object.keys(audioTracks).forEach(direction => {
+                if (audioTracks[direction]) {
+                    // This is a simplified version - you can enhance this
+                    audioTracks[direction].volume = 0.5;
                 }
             });
-            
-            console.log('Playback stopped');
         }
         
         function resetAll() {
             stopPlayback();
-            orbPosition = { x: 0, y: 0 };
-            stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
+            orbPos = { x: 0, y: 0 };
             orb.style.transform = 'translate(-50%, -50%)';
-            updateVisuals();
+            status.textContent = 'Reset';
         }
         
         // Initialize
         createRings();
-        updateVisuals();
+        status.textContent = 'Initialized';
         
-        console.log('MESONO Sound Creator initialized');
+        console.log('MESONO Sound Creator - Simple Version Loaded');
     </script>
 </body>
 </html>
