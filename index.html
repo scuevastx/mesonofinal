@@ -426,25 +426,28 @@
             stemVolumes = calculateVolumes(x, y);
             updateVisuals();
             
-            status.textContent = `N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}%`;
+            status.textContent = `N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}% | Tracks: ${Object.keys(audioTracks).length}`;
             
             // Update audio volumes if playing (enhanced for mobile)
             if (isPlaying) {
+                let debugInfo = [];
                 Object.keys(audioTracks).forEach(direction => {
                     if (audioTracks[direction]) {
-                        // Store the volume before setting it
                         const targetVolume = stemVolumes[direction];
+                        audioTracks[direction].volume = targetVolume;
                         
-                        // For mobile browsers, sometimes we need to force the volume change
-                        audioTracks[direction].volume = 0;
-                        setTimeout(() => {
-                            audioTracks[direction].volume = targetVolume;
-                        }, 10);
+                        // Check if audio is actually playing
+                        const isPlaying = !audioTracks[direction].paused;
+                        const actualVolume = audioTracks[direction].volume;
                         
-                        // Debug logging for mobile
-                        console.log(`Mobile: ${direction} volume set to ${targetVolume}`);
+                        debugInfo.push(`${direction}:${isPlaying?'P':'X'}${Math.round(actualVolume*100)}`);
+                        
+                        console.log(`${direction} - Playing: ${isPlaying}, Volume: ${actualVolume}, Target: ${targetVolume}`);
                     }
                 });
+                
+                // Add debug info to status
+                status.textContent += ` | ${debugInfo.join(' ')}`;
             }
         }
         
