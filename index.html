@@ -483,29 +483,59 @@
             let loadedCount = 0;
             const totalTracks = Object.keys(audioSources).length;
             
+            // Clear any existing tracks
+            audioTracks = {};
+            
             Object.keys(audioSources).forEach(direction => {
                 const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
                 audio.volume = stemVolumes[direction];
                 audio.loop = true;
                 audio.crossOrigin = 'anonymous';
                 
+                // Mobile-specific audio setup
+                audio.preload = 'auto';
+                audio.controls = false;
+                
+                // Debug logging
+                console.log(`Loading ${direction}: ${audioSources[direction]}`);
+                
+                audio.addEventListener('loadstart', () => {
+                    console.log(`${direction}: Load started`);
+                });
+                
+                audio.addEventListener('canplay', () => {
+                    console.log(`${direction}: Can play`);
+                });
+                
                 audio.addEventListener('canplaythrough', () => {
                     loadedCount++;
+                    console.log(`${direction}: Can play through (${loadedCount}/${totalTracks})`);
                     status.textContent = `Loading... ${loadedCount}/${totalTracks}`;
                     
                     if (loadedCount === totalTracks) {
-                        status.textContent = 'Playing...';
-                        Object.values(audioTracks).forEach(track => {
-                            track.play().catch(e => {
-                                status.textContent = 'Click to start audio';
+                        status.textContent = 'Starting all tracks...';
+                        console.log('All tracks loaded, starting playback');
+                        
+                        // Start all tracks
+                        Object.values(audioTracks).forEach((track, index) => {
+                            track.play().then(() => {
+                                console.log(`Track ${index} started successfully`);
+                            }).catch(e => {
+                                console.error(`Track ${index} failed to start:`, e);
+                                status.textContent = 'Audio failed - tap to retry';
                             });
                         });
+                        
+                        // Update status after a brief delay
+                        setTimeout(() => {
+                            status.textContent = 'Playing...';
+                        }, 1000);
                     }
                 });
                 
                 audio.addEventListener('error', (e) => {
-                    status.textContent = `Error loading ${direction}`;
                     console.error(`Failed to load ${direction}:`, e);
+                    status.textContent = `Error loading ${direction}`;
                 });
                 
                 audioTracks[direction] = audio;
