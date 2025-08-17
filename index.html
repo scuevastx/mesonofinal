@@ -428,13 +428,21 @@
             
             status.textContent = `N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}%`;
             
-            // Update audio volumes if playing
+            // Update audio volumes if playing (enhanced for mobile)
             if (isPlaying) {
                 Object.keys(audioTracks).forEach(direction => {
                     if (audioTracks[direction]) {
-                        audioTracks[direction].volume = stemVolumes[direction];
+                        // Store the volume before setting it
+                        const targetVolume = stemVolumes[direction];
+                        
+                        // For mobile browsers, sometimes we need to force the volume change
+                        audioTracks[direction].volume = 0;
+                        setTimeout(() => {
+                            audioTracks[direction].volume = targetVolume;
+                        }, 10);
+                        
                         // Debug logging for mobile
-                        console.log(`Mobile: ${direction} volume set to ${stemVolumes[direction]}`);
+                        console.log(`Mobile: ${direction} volume set to ${targetVolume}`);
                     }
                 });
             }
