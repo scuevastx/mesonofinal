@@ -283,8 +283,8 @@
         const startImg = document.getElementById('startImg');
         const logoImg = document.getElementById('logoImg');
         
-        // Audio sources
-        const audioSources = {
+        // Audio file mapping
+        const audioFileMap = {
             north: 'mesono-one.mp3',
             east: 'mesono-two.mp3',
             south: 'mesono-three.mp3',
@@ -481,52 +481,50 @@
             status.textContent = 'Loading audio...';
             
             let loadedCount = 0;
-            const totalTracks = Object.keys(audioSources).length;
+            const totalTracks = Object.keys(audioFileMap).length;
             
             // Clear any existing tracks
             audioTracks = {};
             
-            Object.keys(audioSources).forEach(direction => {
-                const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioSources[direction]}`);
+            Object.keys(audioFileMap).forEach(direction => {
+                const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioFileMap[direction]}`);
                 audio.volume = stemVolumes[direction];
                 audio.loop = true;
                 audio.crossOrigin = 'anonymous';
                 
-                // Mobile-specific audio setup
+                // Mobile-specific fixes
                 audio.preload = 'auto';
                 audio.controls = false;
                 
-                // Debug logging
-                console.log(`Loading ${direction}: ${audioSources[direction]}`);
-                
-                audio.addEventListener('loadstart', () => {
-                    console.log(`${direction}: Load started`);
-                });
-                
-                audio.addEventListener('canplay', () => {
-                    console.log(`${direction}: Can play`);
-                });
+                // Force audio context resume on user interaction (mobile requirement)
+                if (audio.context && audio.context.state === 'suspended') {
+                    audio.context.resume();
+                }
                 
                 audio.addEventListener('canplaythrough', () => {
                     loadedCount++;
-                    console.log(`${direction}: Can play through (${loadedCount}/${totalTracks})`);
                     status.textContent = `Loading... ${loadedCount}/${totalTracks}`;
                     
                     if (loadedCount === totalTracks) {
                         status.textContent = 'Starting all tracks...';
-                        console.log('All tracks loaded, starting playback');
                         
-                        // Start all tracks
+                        // Start all tracks with a small delay between each
+                        let startDelay = 0;
                         Object.values(audioTracks).forEach((track, index) => {
-                            track.play().then(() => {
-                                console.log(`Track ${index} started successfully`);
-                            }).catch(e => {
-                                console.error(`Track ${index} failed to start:`, e);
-                                status.textContent = 'Audio failed - tap to retry';
-                            });
+                            setTimeout(() => {
+                                track.play().then(() => {
+                                    console.log(`Track ${index} started`);
+                                    // Force initial volume setting
+                                    const direction = Object.keys(audioTracks)[index];
+                                    track.volume = stemVolumes[direction];
+                                }).catch(e => {
+                                    console.error(`Track ${index} failed:`, e);
+                                    status.textContent = 'Audio failed - tap to retry';
+                                });
+                            }, startDelay);
+                            startDelay += 100; // 100ms between starts
                         });
                         
-                        // Update status after a brief delay
                         setTimeout(() => {
                             status.textContent = 'Playing...';
                         }, 1000);
