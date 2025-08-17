@@ -567,7 +567,8 @@
                         audioTracks[direction] = {
                             source: source,
                             gainNode: gainNode,
-                            isWebAudio: true
+                            isWebAudio: true,
+                            isPlaying: false
                         };
                         
                         loadedCount++;
@@ -584,13 +585,29 @@
                 // Wait for all to load
                 await Promise.all(loadPromises);
                 
-                // Start all sources
-                Object.values(audioTracks).forEach(track => {
-                    track.source.start(0);
+                // CRITICAL: Force audio context to resume again right before playing
+                if (audioContext.state !== 'running') {
+                    console.log('Force resuming audio context before play');
+                    await audioContext.resume();
+                }
+                
+                // Start all sources with a small delay
+                Object.values(audioTracks).forEach((track, index) => {
+                    setTimeout(() => {
+                        track.source.start(0);
+                        track.isPlaying = true;
+                        console.log(`Started Web Audio source ${index}`);
+                    }, index * 50);
                 });
                 
                 status.textContent = `${audioSystemUsed} playing...`;
                 console.log('Web Audio playback started successfully');
+                
+                // Double-check audio context state
+                setTimeout(() => {
+                    console.log('Audio context state after start:', audioContext.state);
+                    console.log('Master gain volume:', masterGainNode.gain.value);
+                }, 1000);
                 
             } catch (error) {
                 console.error('Web Audio playback failed, falling back to HTML5:', error);
@@ -649,13 +666,37 @@
                 startImg.alt = 'START';
             }
             
-            status.textContent = 'Stopped';
+            status.textContent = 'Stopping...';
             
-            Object.values(audioTracks).forEach(audio => {
-                audio.pause();
-                audio.currentTime = 0;
+            // Stop Web Audio sources
+            Object.keys(audioTracks).forEach(direction => {
+                if (audioTracks[direction]) {
+                    if (audioTracks[direction].isWebAudio && audioTracks[direction].isPlaying) {
+                        try {
+                            audioTracks[direction].source.stop();
+                            audioTracks[direction].isPlaying = false;
+                            console.log(`Stopped Web Audio source: ${direction}`);
+                        } catch (e) {
+                            console.log(`Web Audio source already stopped: ${direction}`);
+                        }
+                    } else if (!audioTracks[direction].isWebAudio) {
+                        // HTML5 audio
+                        audioTracks[direction].pause();
+                        audioTracks[direction].currentTime = 0;
+                    }
+                }
             });
+            
+            // Clear tracks
             audioTracks = {};
+            
+            // Reset audio context if needed
+            if (audioContext && audioContext.state === 'running') {
+                audioContext.suspend().catch(e => console.log('Audio context suspend failed:', e));
+            }
+            
+            status.textContent = 'Stopped';
+            console.log('Playback stopped');
         }
         
         function resetAll() {
