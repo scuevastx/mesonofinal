@@ -136,19 +136,6 @@
             filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.5));
         }
         
-        .status {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 5px;
-            border-radius: 3px;
-            font-size: 10px;
-            z-index: 1000;
-            display: block;
-        }
-        
         /* Mobile Responsive Styles */
         @media (max-width: 768px) {
             body {
@@ -228,8 +215,6 @@
     </style>
 </head>
 <body>
-    <div class="status" id="status">Ready</div>
-    
     <div class="main-container" id="container">
         <!-- Rings -->
         <div id="rings"></div>
@@ -276,7 +261,6 @@
         let audioTracks = {};
         let stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
         
-        const status = document.getElementById('status');
         const orb = document.getElementById('orb');
         const container = document.getElementById('container');
         const startBtn = document.getElementById('startBtn');
@@ -388,7 +372,7 @@
         
         function startDrag(e) {
             isDragging = true;
-            status.textContent = 'Dragging...';
+            console.log('Dragging started');
             e.preventDefault();
         }
         
@@ -426,11 +410,10 @@
             stemVolumes = calculateVolumes(x, y);
             updateVisuals();
             
-            status.textContent = `N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}% | Tracks: ${Object.keys(audioTracks).length}`;
+            console.log(`Volumes - N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}%`);
             
             // Update audio volumes if playing (Web Audio compatible)
             if (isPlaying) {
-                let debugInfo = [];
                 Object.keys(audioTracks).forEach(direction => {
                     if (audioTracks[direction]) {
                         const targetVolume = stemVolumes[direction];
@@ -438,21 +421,14 @@
                         if (audioTracks[direction].isWebAudio) {
                             // Web Audio API volume control
                             audioTracks[direction].gainNode.gain.setValueAtTime(targetVolume, audioContext.currentTime);
-                            debugInfo.push(`${direction}:WA${Math.round(targetVolume*100)}`);
                         } else {
                             // HTML5 audio volume control
                             audioTracks[direction].volume = targetVolume;
-                            const isPlaying = !audioTracks[direction].paused;
-                            const actualVolume = audioTracks[direction].volume;
-                            debugInfo.push(`${direction}:${isPlaying?'P':'X'}${Math.round(actualVolume*100)}`);
                         }
                         
                         console.log(`${direction} volume set to ${targetVolume}`);
                     }
                 });
-                
-                // Add debug info to status
-                status.textContent += ` | ${debugInfo.join(' ')}`;
             }
         }
         
@@ -462,7 +438,7 @@
         function endDrag() {
             if (isDragging) {
                 isDragging = false;
-                status.textContent = isPlaying ? 'Playing...' : 'Ready';
+                console.log('Dragging ended');
             }
         }
         
@@ -496,7 +472,6 @@
                 isWebAudioSupported = true;
                 audioSystemUsed = 'WebAudio';
                 console.log('Web Audio API initialized successfully');
-                status.textContent = 'Web Audio API ready';
                 return true;
             } catch (e) {
                 console.log('Web Audio API initialization failed:', e);
@@ -514,7 +489,7 @@
                 startImg.alt = 'STOP';
             }
             
-            status.textContent = 'Initializing audio...';
+            console.log('Initializing audio...');
             
             // Try Web Audio API first (better for mobile)
             if (initWebAudio()) {
@@ -525,7 +500,7 @@
         }
         
         async function startWebAudioPlayback() {
-            status.textContent = 'Loading with Web Audio...';
+            console.log('Loading with Web Audio...');
             let loadedCount = 0;
             const totalTracks = Object.keys(audioFileMap).length;
             
@@ -572,8 +547,7 @@
                         };
                         
                         loadedCount++;
-                        status.textContent = `Web Audio loading... ${loadedCount}/${totalTracks}`;
-                        console.log(`${direction} loaded successfully via Web Audio`);
+                        console.log(`${direction} loaded successfully via Web Audio (${loadedCount}/${totalTracks})`);
                         
                         return true;
                     } catch (error) {
@@ -600,7 +574,6 @@
                     }, index * 50);
                 });
                 
-                status.textContent = `${audioSystemUsed} playing...`;
                 console.log('Web Audio playback started successfully');
                 
                 // Double-check audio context state
@@ -611,14 +584,13 @@
                 
             } catch (error) {
                 console.error('Web Audio playback failed, falling back to HTML5:', error);
-                status.textContent = 'Web Audio failed, trying HTML5...';
                 audioSystemUsed = 'HTML5-Fallback';
                 startHtmlAudioPlayback();
             }
         }
         
         function startHtmlAudioPlayback() {
-            status.textContent = `Loading with ${audioSystemUsed}...`;
+            console.log(`Loading with ${audioSystemUsed}...`);
             let loadedCount = 0;
             const totalTracks = Object.keys(audioFileMap).length;
             
@@ -634,7 +606,7 @@
                 
                 audio.addEventListener('canplaythrough', () => {
                     loadedCount++;
-                    status.textContent = `${audioSystemUsed} loading... ${loadedCount}/${totalTracks}`;
+                    console.log(`${audioSystemUsed} loading... ${loadedCount}/${totalTracks}`);
                     
                     if (loadedCount === totalTracks) {
                         Object.values(audioTracks).forEach((track, index) => {
@@ -646,7 +618,7 @@
                                 });
                             }, index * 100);
                         });
-                        status.textContent = `${audioSystemUsed} playing...`;
+                        console.log(`${audioSystemUsed} playing...`);
                     }
                 });
                 
@@ -666,7 +638,7 @@
                 startImg.alt = 'START';
             }
             
-            status.textContent = 'Stopping...';
+            console.log('Stopping playback...');
             
             // Stop Web Audio sources
             Object.keys(audioTracks).forEach(direction => {
@@ -695,7 +667,6 @@
                 audioContext.suspend().catch(e => console.log('Audio context suspend failed:', e));
             }
             
-            status.textContent = 'Stopped';
             console.log('Playback stopped');
         }
         
@@ -705,15 +676,13 @@
             stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
             orb.style.transform = 'translate(-50%, -50%)';
             updateVisuals();
-            status.textContent = 'Reset';
+            console.log('Reset complete');
         }
         
         // Initialize
         createRings();
         updateVisuals();
-        status.textContent = 'Initialized';
-        
-        console.log('MESONO Sound Creator - Full Version Loaded');
+        console.log('MESONO Sound Creator - Initialized');
     </script>
 </body>
 </html>
