@@ -22,6 +22,33 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            right: -10%;
+            bottom: -10%;
+            background: inherit;
+            background-size: cover;
+            background-position: center;
+            animation: breathe 8s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes breathe {
+            0%, 100% {
+                transform: scale(1) translateZ(0);
+                filter: brightness(1);
+            }
+            50% {
+                transform: scale(1.05) translateZ(0);
+                filter: brightness(1.1);
+            }
         }
         
         .main-container {
@@ -111,7 +138,7 @@
         
         .controls {
             display: flex;
-            gap: 60px;
+            justify-content: center;
             align-items: center;
             margin-top: 80px;
         }
@@ -178,7 +205,6 @@
             .stem.west { left: 40px; }
             
             .controls {
-                gap: 40px;
                 margin-top: 60px;
             }
             
@@ -204,7 +230,6 @@
             }
             
             .controls {
-                gap: 30px;
                 margin-top: 50px;
             }
             
@@ -244,12 +269,6 @@
                  alt="START" 
                  class="btn-img"
                  id="startImg">
-        </button>
-        
-        <button class="control-btn" onclick="resetAll()">
-            <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png" 
-                 alt="STOP" 
-                 class="btn-img">
         </button>
     </div>
 
