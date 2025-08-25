@@ -26,6 +26,7 @@
             overflow: hidden;
         }
         
+        /* Breathing background with subtle color shift */
         body::before {
             content: '';
             position: fixed;
@@ -102,24 +103,44 @@
             display: none;
         }
         
+        /* Enhanced orb - bigger and more visible */
         .orb {
             position: absolute;
-            width: 32px;
-            height: 32px;
-            background: rgba(255, 255, 255, 0.9);
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 50%;
             cursor: grab;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3), 
+                0 0 30px rgba(255, 255, 255, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1);
             user-select: none;
             z-index: 100;
+            animation: orbPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes orbPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 4px 15px rgba(0, 0, 0, 0.3), 
+                    0 0 30px rgba(255, 255, 255, 0.4),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            }
+            50% {
+                box-shadow: 
+                    0 4px 15px rgba(0, 0, 0, 0.3), 
+                    0 0 40px rgba(255, 255, 255, 0.6),
+                    inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            }
         }
         
         .orb:active {
             cursor: grabbing;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
         }
         
         .stem {
@@ -190,8 +211,8 @@
             }
             
             .orb {
-                width: 24px;
-                height: 24px;
+                width: 40px;
+                height: 40px;
             }
             
             .stem {
