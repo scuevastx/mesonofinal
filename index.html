@@ -10,19 +10,38 @@
             padding: 0;
             box-sizing: border-box;
         }
-
-        html, body {
+        
+        html {
             height: 100%;
-            width: 100%;
             margin: 0;
             padding: 0;
+        }
+        
+        body {
             font-family: Arial, sans-serif;
-            background: #2a2a2a; /* Set background here */
-            display: flex; /* Use flexbox on the body */
+            min-height: 100vh;
+            margin: 0;
+            padding: 200px 20px 20px 20px;
+            display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Center everything vertically */
-            overflow: hidden; /* Prevent scrolling issues */
+            justify-content: flex-start;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        /* Fixed background layer - solid color only */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #2a2a2a;
+            z-index: -2;
+            pointer-events: none;
         }
         
         .main-container {
@@ -32,49 +51,31 @@
             background: url('https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-background.png') center center;
             background-size: cover;
             border-radius: 50%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3),
-                        0 0 100px rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 100px rgba(255, 255, 255, 0.1);
             overflow: hidden;
+            margin-bottom: -120px;
             animation: containerPulse 3s ease-in-out infinite;
         }
-
-        /* Responsive adjustments for the main container */
-        @media (max-width: 768px) {
-            .main-container {
-                width: 280px;
-                height: 280px;
-                margin: 0 auto; /* Center horizontally on mobile */
+        
+        @keyframes containerPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 25px 50px rgba(0, 0, 0, 0.3),
+                    0 0 30px rgba(255, 255, 255, 0.02),
+                    0 0 60px rgba(255, 200, 100, 0.01);
+                transform: scale(0.98);
             }
-        }
-
-        @media (max-width: 480px) {
-            .main-container {
-                width: 260px;
-                height: 260px;
-                margin: 0 auto;
+            50% {
+                box-shadow: 
+                    0 30px 70px rgba(0, 0, 0, 0.5),
+                    0 0 120px rgba(255, 255, 255, 0.5),
+                    0 0 250px rgba(255, 200, 100, 0.4);
+                transform: scale(1.05);
             }
         }
         
-        /* The orb is now centered relative to the main-container using `top: 50%` and `transform: translate` */
-        .orb {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 50%;
-            cursor: grab;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* This is crucial for centering */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3),
-                        0 0 15px rgba(255, 255, 255, 0.4),
-                        inset 0 -1px 2px rgba(0, 0, 0, 0.1);
-            user-select: none;
-            z-index: 100;
-            animation: orbPulse 3s ease-in-out infinite;
-        }
-
-        /* Other CSS and JS code remain the same... */
         .ring {
             position: absolute;
             border: 2px solid rgba(255, 255, 255, 0.15);
@@ -84,7 +85,7 @@
             transform: translate(-50%, -50%);
             transition: all 150ms ease-out;
         }
-
+        
         .logo-img {
             position: absolute;
             top: 50%;
@@ -97,7 +98,7 @@
             user-select: none;
             z-index: 50;
         }
-
+        
         .logo-text {
             position: absolute;
             top: 50%;
@@ -114,16 +115,38 @@
             display: none;
         }
         
+        /* Enhanced orb - much smaller size */
+        .orb {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            cursor: grab;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.3), 
+                0 0 15px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            z-index: 100;
+            animation: orbPulse 3s ease-in-out infinite;
+        }
+        
         @keyframes orbPulse {
             0%, 100% {
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3),
-                            0 0 15px rgba(255, 255, 255, 0.4),
-                            inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                box-shadow: 
+                    0 2px 8px rgba(0, 0, 0, 0.3), 
+                    0 0 15px rgba(255, 255, 255, 0.4),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
             }
             50% {
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3),
-                            0 0 25px rgba(255, 255, 255, 0.6),
-                            inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+                box-shadow: 
+                    0 2px 8px rgba(0, 0, 0, 0.3), 
+                    0 0 25px rgba(255, 255, 255, 0.6),
+                    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
             }
         }
         
@@ -131,7 +154,7 @@
             cursor: grabbing;
             box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
         }
-
+        
         .stem {
             position: absolute;
             background: rgba(255, 255, 255, 0.6);
@@ -140,7 +163,7 @@
             transition: all 150ms ease-out;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
-
+        
         .stem.north { top: 60px; left: 50%; }
         .stem.south { bottom: 60px; left: 50%; }
         .stem.east { right: 60px; top: 50%; }
@@ -160,57 +183,123 @@
             padding: 0;
             transition: all 200ms ease;
         }
-
+        
         .btn-img {
             width: 120px;
             height: auto;
             filter: drop-shadow(0 8px 25px rgba(0, 0, 0, 0.4));
             transition: all 200ms ease;
         }
-
+        
         .control-btn:hover .btn-img {
             transform: translateY(-2px);
             filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.5));
         }
-
-        /* Mobile responsive styles */
+        
+        /* Mobile Responsive Styles */
         @media (max-width: 768px) {
-            .logo-img { max-width: 150px; }
-            .logo-text { font-size: 1.5rem; }
-            .orb { width: 10px; height: 10px; }
-            .stem { width: 8px; height: 8px; }
+            body {
+                padding: 5px;
+            }
+            
+            .main-container {
+                width: 280px;
+                height: 280px;
+                margin: 5px auto;
+            }
+            
+            .ring {
+                border-width: 1px;
+            }
+            
+            .logo-img {
+                max-width: 200px;
+                max-height: 90px;
+            }
+            
+            .logo-text {
+                font-size: 2rem;
+                letter-spacing: 0.2em;
+            }
+            
+            .orb {
+                width: 10px;
+                height: 10px;
+            }
+            
+            .stem {
+                width: 8px;
+                height: 8px;
+            }
+            
             .stem.north { top: 30px; }
             .stem.south { bottom: 30px; }
             .stem.east { right: 30px; }
             .stem.west { left: 30px; }
-            .controls { margin-top: 20px; }
-            .btn-img { width: 70px; }
+            
+            .controls {
+                margin-top: -5px;
+            }
+            
+            .btn-img {
+                width: 70px;
+            }
         }
-
+        
         @media (max-width: 480px) {
-            .main-container { width: 220px; height: 220px; }
-            .logo-img { max-width: 120px; }
-            .logo-text { font-size: 1.2rem; }
-            .orb { width: 8px; height: 8px; }
-            .stem { width: 6px; height: 6px; }
-            .controls { margin-top: 10px; }
-            .btn-img { width: 65px; }
+            .main-container {
+                width: 260px;
+                height: 260px;
+                margin: 5px auto;
+            }
+            
+            .logo-img {
+                max-width: 180px;
+                max-height: 80px;
+            }
+            
+            .logo-text {
+                font-size: 1.8rem;
+            }
+            
+            .controls {
+                margin-top: 0;
+            }
+            
+            .btn-img {
+                width: 65px;
+            }
         }
-
+        
+        /* Specific height constraint for embedded apps */
         @media (max-height: 500px) {
-            body { padding: 3px; min-height: auto; }
-            .main-container { width: 200px; height: 200px; }
-            .logo-img { max-width: 100px; }
-            .logo-text { font-size: 1rem; }
-            .controls { margin-top: 5px; }
-            .btn-img { width: 50px; }
+            body {
+                padding: 3px;
+                min-height: auto;
+            }
+            
+            .main-container {
+                width: 250px;
+                height: 250px;
+                margin: 3px auto;
+            }
+            
+            .controls {
+                margin-top: 0;
+            }
+            
+            .btn-img {
+                width: 65px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="main-container" id="container">
+        <!-- Rings -->
         <div id="rings"></div>
         
+        <!-- Logo -->
         <img src="https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-logo.png" 
              alt="MESONO" 
              class="logo-img" 
@@ -219,11 +308,13 @@
         
         <div class="logo-text" id="logoText">MESONO</div>
         
+        <!-- Music stems -->
         <div class="stem north" id="stem-north"></div>
         <div class="stem south" id="stem-south"></div>
         <div class="stem east" id="stem-east"></div>
         <div class="stem west" id="stem-west"></div>
         
+        <!-- Draggable orb -->
         <div class="orb" id="orb"></div>
     </div>
 
@@ -237,7 +328,434 @@
     </div>
 
     <script>
-        // Paste the rest of your JavaScript code here, starting from // State management
+        // State management
+        let isPlaying = false;
+        let orbPos = { x: 0, y: 0 };
+        let isDragging = false;
+        let audioTracks = {};
+        let stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
+        
+        const orb = document.getElementById('orb');
+        const container = document.getElementById('container');
+        const startBtn = document.getElementById('startBtn');
+        const startImg = document.getElementById('startImg');
+        const logoImg = document.getElementById('logoImg');
+        
+        // Audio file mapping
+        const audioFileMap = {
+            north: 'mesono-one.mp3',
+            east: 'mesono-two.mp3',
+            south: 'mesono-three.mp3',
+            west: 'mesono-four.mp3'
+        };
+        
+        // Create rings
+        function createRings() {
+            const ringsContainer = document.getElementById('rings');
+            const ringCount = 4; // Fewer rings for smaller default size
+            for (let i = 0; i < ringCount; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'ring';
+                ring.style.width = `${40 + i * 40}px`;
+                ring.style.height = `${40 + i * 40}px`;
+                ring.style.borderColor = `rgba(255, 255, 255, ${0.1 + i * 0.03})`;
+                ring.id = `ring-${i}`;
+                ringsContainer.appendChild(ring);
+            }
+        }
+        
+        // Calculate volumes based on orb position (responsive)
+        function calculateVolumes(x, y) {
+            // Use smaller radius for smaller container
+            const radius = 80;
+            const maxDistance = radius * Math.sqrt(2);
+            
+            const distances = {
+                north: Math.sqrt(x * x + (y + radius) * (y + radius)),
+                south: Math.sqrt(x * x + (y - radius) * (y - radius)),
+                east: Math.sqrt((x - radius) * (x - radius) + y * y),
+                west: Math.sqrt((x + radius) * (x + radius) + y * y)
+            };
+            
+            const volumes = {};
+            Object.keys(distances).forEach(direction => {
+                const normalizedDistance = Math.min(distances[direction] / maxDistance, 1);
+                volumes[direction] = Math.max(0, 1 - normalizedDistance);
+            });
+            
+            const totalVolume = Object.values(volumes).reduce((sum, vol) => sum + vol, 0);
+            if (totalVolume > 0) {
+                Object.keys(volumes).forEach(direction => {
+                    volumes[direction] = (volumes[direction] / totalVolume) * 0.8;
+                });
+            }
+            
+            return volumes;
+        }
+        
+        // Update visual effects
+        function updateVisuals() {
+            const movement = Math.sqrt(orbPos.x * orbPos.x + orbPos.y * orbPos.y);
+            
+            // Update rings with flowing effect
+            for (let i = 0; i < 10; i++) {
+                const ring = document.getElementById(`ring-${i}`);
+                if (ring) {
+                    const offsetMultiplier = (i + 1) * 0.08;
+                    const offsetX = orbPos.x * offsetMultiplier;
+                    const offsetY = orbPos.y * offsetMultiplier;
+                    const baseOpacity = 0.1 + i * 0.03;
+                    const movementOpacity = Math.min(movement / 250 * 0.3, 0.3);
+                    
+                    ring.style.transform = `translate(calc(-50% + ${offsetX}px), calc(-50% + ${offsetY}px))`;
+                    ring.style.borderColor = `rgba(255, 255, 255, ${baseOpacity + movementOpacity})`;
+                    
+                    if (movement > 50) {
+                        ring.style.boxShadow = `0 0 ${10 + movement * 0.1}px rgba(255, 255, 255, ${movementOpacity})`;
+                    } else {
+                        ring.style.boxShadow = 'none';
+                    }
+                }
+            }
+            
+            // Update logo with movement
+            const logoGlow = 15 + movement * 0.2;
+            logoImg.style.filter = `drop-shadow(0 0 ${logoGlow}px rgba(255, 255, 255, 0.6)) brightness(1.2)`;
+            logoImg.style.transform = `translate(calc(-50% + ${orbPos.x * 0.02}px), calc(-50% + ${orbPos.y * 0.02}px))`;
+            
+            // Update stems
+            Object.keys(stemVolumes).forEach(direction => {
+                const stem = document.getElementById(`stem-${direction}`);
+                if (stem) {
+                    const volume = stemVolumes[direction];
+                    const pulseIntensity = volume * (1 + movement / 250);
+                    const size = 16 + pulseIntensity * 12;
+                    
+                    stem.style.width = `${size}px`;
+                    stem.style.height = `${size}px`;
+                    stem.style.backgroundColor = `rgba(255, 255, 255, ${0.4 + volume * 0.6})`;
+                    stem.style.boxShadow = `0 0 ${10 + volume * 30}px rgba(255, 255, 255, ${volume * 0.8})`;
+                    stem.style.transform = `translate(-50%, -50%) scale(${1 + volume * 0.5})`;
+                }
+            });
+        }
+        
+        // Drag functionality
+        orb.addEventListener('mousedown', startDrag);
+        orb.addEventListener('touchstart', startDrag);
+        
+        function startDrag(e) {
+            isDragging = true;
+            console.log('Dragging started');
+            e.preventDefault();
+        }
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag);
+        
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            let x = clientX - centerX;
+            let y = clientY - centerY;
+            
+            // Constrain to circle (responsive)
+            const distance = Math.sqrt(x * x + y * y);
+            const maxRadius = 100; // Smaller radius for smaller container
+            if (distance > maxRadius) {
+                x = (x / distance) * maxRadius;
+                y = (y / distance) * maxRadius;
+            }
+            
+            orbPos.x = x;
+            orbPos.y = y;
+            
+            orb.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            
+            // Update volumes and visuals
+            stemVolumes = calculateVolumes(x, y);
+            updateVisuals();
+            
+            console.log(`Volumes - N:${Math.round(stemVolumes.north*100)}% E:${Math.round(stemVolumes.east*100)}% S:${Math.round(stemVolumes.south*100)}% W:${Math.round(stemVolumes.west*100)}%`);
+            
+            // Update audio volumes if playing (Web Audio compatible)
+            if (isPlaying) {
+                Object.keys(audioTracks).forEach(direction => {
+                    if (audioTracks[direction]) {
+                        const targetVolume = stemVolumes[direction];
+                        
+                        if (audioTracks[direction].isWebAudio) {
+                            // Web Audio API volume control
+                            audioTracks[direction].gainNode.gain.setValueAtTime(targetVolume, audioContext.currentTime);
+                        } else {
+                            // HTML5 audio volume control
+                            audioTracks[direction].volume = targetVolume;
+                        }
+                        
+                        console.log(`${direction} volume set to ${targetVolume}`);
+                    }
+                });
+            }
+        }
+        
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        
+        function endDrag() {
+            if (isDragging) {
+                isDragging = false;
+                console.log('Dragging ended');
+            }
+        }
+        
+        // Audio control
+        function togglePlay() {
+            if (!isPlaying) {
+                startPlayback();
+            } else {
+                stopPlayback();
+            }
+        }
+        
+        // Enhanced mobile-compatible audio system
+        let audioContext = null;
+        let masterGainNode = null;
+        let isWebAudioSupported = false;
+        let audioSystemUsed = 'none';
+        
+        // Try to use Web Audio API for better mobile control
+        function initWebAudio() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) {
+                    console.log('AudioContext not available');
+                    return false;
+                }
+                
+                audioContext = new AudioContextClass();
+                masterGainNode = audioContext.createGain();
+                masterGainNode.connect(audioContext.destination);
+                isWebAudioSupported = true;
+                audioSystemUsed = 'WebAudio';
+                console.log('Web Audio API initialized successfully');
+                return true;
+            } catch (e) {
+                console.log('Web Audio API initialization failed:', e);
+                audioSystemUsed = 'HTML5';
+                isWebAudioSupported = false;
+                return false;
+            }
+        }
+        
+        function startPlayback() {
+            isPlaying = true;
+            
+            if (startImg) {
+                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-stop.png';
+                startImg.alt = 'STOP';
+            }
+            
+            console.log('Initializing audio...');
+            
+            // Try Web Audio API first (better for mobile)
+            if (initWebAudio()) {
+                startWebAudioPlayback();
+            } else {
+                startHtmlAudioPlayback();
+            }
+        }
+        
+        async function startWebAudioPlayback() {
+            console.log('Loading with Web Audio...');
+            let loadedCount = 0;
+            const totalTracks = Object.keys(audioFileMap).length;
+            
+            try {
+                // Resume audio context (required for mobile)
+                if (audioContext.state === 'suspended') {
+                    console.log('Resuming suspended audio context');
+                    await audioContext.resume();
+                }
+                
+                console.log('Audio context state:', audioContext.state);
+                
+                const loadPromises = Object.keys(audioFileMap).map(async (direction) => {
+                    try {
+                        console.log(`Loading ${direction} via Web Audio`);
+                        const url = `https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioFileMap[direction]}`;
+                        const response = await fetch(url);
+                        
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status} for ${direction}`);
+                        }
+                        
+                        const arrayBuffer = await response.arrayBuffer();
+                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        
+                        // Create source and gain nodes
+                        const source = audioContext.createBufferSource();
+                        const gainNode = audioContext.createGain();
+                        
+                        source.buffer = audioBuffer;
+                        source.loop = true;
+                        source.connect(gainNode);
+                        gainNode.connect(masterGainNode);
+                        
+                        // Set initial volume
+                        gainNode.gain.setValueAtTime(stemVolumes[direction], audioContext.currentTime);
+                        
+                        // Store references
+                        audioTracks[direction] = {
+                            source: source,
+                            gainNode: gainNode,
+                            isWebAudio: true,
+                            isPlaying: false
+                        };
+                        
+                        loadedCount++;
+                        console.log(`${direction} loaded successfully via Web Audio (${loadedCount}/${totalTracks})`);
+                        
+                        return true;
+                    } catch (error) {
+                        console.error(`Web Audio failed for ${direction}:`, error);
+                        throw error;
+                    }
+                });
+                
+                // Wait for all to load
+                await Promise.all(loadPromises);
+                
+                // CRITICAL: Force audio context to resume again right before playing
+                if (audioContext.state !== 'running') {
+                    console.log('Force resuming audio context before play');
+                    await audioContext.resume();
+                }
+                
+                // Start all sources with a small delay
+                Object.values(audioTracks).forEach((track, index) => {
+                    setTimeout(() => {
+                        track.source.start(0);
+                        track.isPlaying = true;
+                        console.log(`Started Web Audio source ${index}`);
+                    }, index * 50);
+                });
+                
+                console.log('Web Audio playback started successfully');
+                
+                // Double-check audio context state
+                setTimeout(() => {
+                    console.log('Audio context state after start:', audioContext.state);
+                    console.log('Master gain volume:', masterGainNode.gain.value);
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Web Audio playback failed, falling back to HTML5:', error);
+                audioSystemUsed = 'HTML5-Fallback';
+                startHtmlAudioPlayback();
+            }
+        }
+        
+        function startHtmlAudioPlayback() {
+            console.log(`Loading with ${audioSystemUsed}...`);
+            let loadedCount = 0;
+            const totalTracks = Object.keys(audioFileMap).length;
+            
+            // Clear any existing tracks
+            audioTracks = {};
+            
+            Object.keys(audioFileMap).forEach(direction => {
+                const audio = new Audio(`https://raw.githubusercontent.com/scuevastx/mesonofinal/main/${audioFileMap[direction]}`);
+                audio.volume = stemVolumes[direction];
+                audio.loop = true;
+                audio.crossOrigin = 'anonymous';
+                audio.preload = 'auto';
+                
+                audio.addEventListener('canplaythrough', () => {
+                    loadedCount++;
+                    console.log(`${audioSystemUsed} loading... ${loadedCount}/${totalTracks}`);
+                    
+                    if (loadedCount === totalTracks) {
+                        Object.values(audioTracks).forEach((track, index) => {
+                            setTimeout(() => {
+                                track.play().then(() => {
+                                    console.log(`${audioSystemUsed} track ${index} started`);
+                                }).catch(e => {
+                                    console.error(`${audioSystemUsed} track ${index} failed:`, e);
+                                });
+                            }, index * 100);
+                        });
+                        console.log(`${audioSystemUsed} playing...`);
+                    }
+                });
+                
+                audio.addEventListener('error', (e) => {
+                    console.error(`${audioSystemUsed} error for ${direction}:`, e);
+                });
+                
+                audioTracks[direction] = audio;
+            });
+        }
+        
+        function stopPlayback() {
+            isPlaying = false;
+            
+            if (startImg) {
+                startImg.src = 'https://raw.githubusercontent.com/scuevastx/mesonofinal/main/mesono-start.png';
+                startImg.alt = 'START';
+            }
+            
+            console.log('Stopping playback...');
+            
+            // Stop Web Audio sources
+            Object.keys(audioTracks).forEach(direction => {
+                if (audioTracks[direction]) {
+                    if (audioTracks[direction].isWebAudio && audioTracks[direction].isPlaying) {
+                        try {
+                            audioTracks[direction].source.stop();
+                            audioTracks[direction].isPlaying = false;
+                            console.log(`Stopped Web Audio source: ${direction}`);
+                        } catch (e) {
+                            console.log(`Web Audio source already stopped: ${direction}`);
+                        }
+                    } else if (!audioTracks[direction].isWebAudio) {
+                        // HTML5 audio
+                        audioTracks[direction].pause();
+                        audioTracks[direction].currentTime = 0;
+                    }
+                }
+            });
+            
+            // Clear tracks
+            audioTracks = {};
+            
+            // Reset audio context if needed
+            if (audioContext && audioContext.state === 'running') {
+                audioContext.suspend().catch(e => console.log('Audio context suspend failed:', e));
+            }
+            
+            console.log('Playback stopped');
+        }
+        
+        function resetAll() {
+            stopPlayback();
+            orbPos = { x: 0, y: 0 };
+            stemVolumes = { north: 0.25, east: 0.25, south: 0.25, west: 0.25 };
+            orb.style.transform = 'translate(-50%, -50%)';
+            updateVisuals();
+            console.log('Reset complete');
+        }
+        
+        // Initialize
+        createRings();
+        updateVisuals();
+        console.log('MESONO Sound Creator - Initialized');
     </script>
 </body>
 </html>
