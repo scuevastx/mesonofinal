@@ -91,8 +91,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            max-width: 800px;
-            max-height: 360px;
+            max-width: 200px;
+            max-height: 90px;
             filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6)) brightness(1.2);
             pointer-events: none;
             user-select: none;
@@ -105,9 +105,9 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 8rem;
+            font-size: 2rem;
             font-weight: 900;
-            letter-spacing: 0.4em;
+            letter-spacing: 0.2em;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.6);
             pointer-events: none;
             user-select: none;
@@ -355,12 +355,12 @@
         // Create rings
         function createRings() {
             const ringsContainer = document.getElementById('rings');
-            const ringCount = window.innerWidth <= 480 ? 4 : 7; // Reduced ring count
+            const ringCount = 4; // Fewer rings for smaller default size
             for (let i = 0; i < ringCount; i++) {
                 const ring = document.createElement('div');
                 ring.className = 'ring';
-                ring.style.width = `${60 + i * 50}px`;
-                ring.style.height = `${60 + i * 50}px`;
+                ring.style.width = `${40 + i * 40}px`;
+                ring.style.height = `${40 + i * 40}px`;
                 ring.style.borderColor = `rgba(255, 255, 255, ${0.1 + i * 0.03})`;
                 ring.id = `ring-${i}`;
                 ringsContainer.appendChild(ring);
@@ -369,9 +369,8 @@
         
         // Calculate volumes based on orb position (responsive)
         function calculateVolumes(x, y) {
-            // Use the same radius values as the drag constraints
-            const radius = window.innerWidth <= 480 ? 120 : 
-                          window.innerWidth <= 768 ? 150 : 200;
+            // Use smaller radius for smaller container
+            const radius = 80;
             const maxDistance = radius * Math.sqrt(2);
             
             const distances = {
@@ -472,8 +471,7 @@
             
             // Constrain to circle (responsive)
             const distance = Math.sqrt(x * x + y * y);
-            const maxRadius = window.innerWidth <= 480 ? 120 : 
-                             window.innerWidth <= 768 ? 150 : 250;
+            const maxRadius = 100; // Smaller radius for smaller container
             if (distance > maxRadius) {
                 x = (x / distance) * maxRadius;
                 y = (y / distance) * maxRadius;
